@@ -1,38 +1,36 @@
-const divs = document.querySelectorAll('.image');
+// Store the currently selected element
+let selectedElement = null;
 
-let draggedDiv = null;
-
-divs.forEach(div => {
-  div.addEventListener('dragstart', dragStart);
-  div.addEventListener('dragover', dragOver);
-  div.addEventListener('drop', drop);
-});
-
-function dragStart(e) {
-  draggedDiv = e.target;
-  e.dataTransfer.setData('text/html', draggedDiv.outerHTML);
+// Function to handle the drag event
+function drag(event) {
+  selectedElement = event.target;
+  event.dataTransfer.setData('text/plain', null);
 }
 
-function dragOver(e) {
-  e.preventDefault();
+// Function to handle the dragover event
+function allowDrop(event) {
+  event.preventDefault();
 }
 
-function drop(e) {
-  if (!draggedDiv) return;
+// Function to handle the dragenter event
+function dragEnter(event) {
+  event.preventDefault();
+  if (selectedElement !== null && selectedElement !== event.target) {
+    event.target.classList.add('selected');
+  }
+}
 
-  e.preventDefault();
+// Function to handle the drop event
+function drop(event) {
+  event.preventDefault();
+  if (selectedElement !== null && selectedElement !== event.target) {
+    // Swap background images
+    const backgroundImage1 = selectedElement.style.backgroundImage;
+    selectedElement.style.backgroundImage = event.target.style.backgroundImage;
+    event.target.style.backgroundImage = backgroundImage1;
 
-  const dropTarget = e.target.closest('.image');
-
-  if (dropTarget && dropTarget !== draggedDiv) {
-    const tempHTML = dropTarget.outerHTML;
-    dropTarget.outerHTML = draggedDiv.outerHTML;
-    draggedDiv.outerHTML = tempHTML;
-
-    divs.forEach(div => {
-      div.addEventListener('dragstart', dragStart);
-      div.addEventListener('dragover', dragOver);
-      div.addEventListener('drop', drop);
-    });
+    // Remove the selection class
+    selectedElement.classList.remove('selected');
+    event.target.classList.remove('selected');
   }
 }
